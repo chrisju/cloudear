@@ -11,7 +11,7 @@ def loads2t():
     return s2t_ctx
     ...
 
-def speech2text(audio, lang):
+def speech2text(audio, lang, param):
     s2t_ctx = loads2t()
 
 #use GPT
