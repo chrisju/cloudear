@@ -27,3 +27,29 @@ curl -X POST https://REGION-PROJECT.cloudfunctions.net/whisper-transcribe \
   -H "Content-Type: multipart/form-data" \
   -F "file=@your_audio.mp3"
 
+
+curl -X POST https://your-cloud-run-url/check_status \
+  -H "Content-Type: application/json" \
+  -d '{"a":"val1","b":"val2","c":"val3","d":"val4"}'
+
+curl -X POST https://your-cloud-run-url/process_file \
+  -F "file=@yourfile.bin" \
+  -F "param1=value1" \
+  -F "param2=value2"
+
+#curl -X POST http://0.0.0.0:8080/hereadduser \
+#  -H "Content-Type: application/json" \
+#  -d '{"adminpass":"val1","user":"val2","password":"val3","days":"val4"}'
+#curl -X POST http://0.0.0.0:8080/s2t \
+#  -F "file=@1.wav" \
+#  -F "user=value1" \
+#  -F "password=value1" \
+#  -F "exparam=" \
+#  -F "targetlang="
+
+curl -X POST http://0.0.0.0:8080/t2t \
+  -F "file=@t.cpp" \
+  -F "user=value1" \
+  -F "password=value1" \
+  -F "sourcelang=" \
+  -F "targetlang=zh"

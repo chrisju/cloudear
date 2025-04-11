@@ -25,7 +25,7 @@ def hereadduser(req: CheckRequest):
     result = adduser(req.adminpass, req.user, req.password, req.days)
     return {"success": result}
 
-@app.post("/s2t", response_class=PlainTextResponse)
+@app.post("/s2t")
 async def s2t(
     file: UploadFile = File(...),
     user: str = Form(...),
@@ -37,7 +37,7 @@ async def s2t(
     result = speech2text(user, password, audio, exparam, targetlang)
     return result
 
-@app.post("/t2t", response_class=PlainTextResponse)
+@app.post("/t2t")
 async def t2t(
     file: UploadFile = File(...),
     user: str = Form(...),
@@ -45,7 +45,7 @@ async def t2t(
     sourcelang: str = Form(...),
     targetlang: str = Form(...),
 ):
-    txt = await file.read()
+    txt = (await file.read()).decode("utf-8")
     result = text2text(user, password, txt, sourcelang, targetlang)
     return result
 

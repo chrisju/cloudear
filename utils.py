@@ -7,7 +7,7 @@ def loads2t():
     global s2t_ctx
     if s2t_ctx is None:
         print("prepare sensvoice...")
-        s2t_ctx = load_model("/app/models/my_model.pth")
+        #s2t_ctx = load_model("/app/models/my_model.pth")
     return s2t_ctx
     ...
 
@@ -19,7 +19,7 @@ def speech2text(user, password, audio, exparam, targetlang):
         return {'txt': '', 'error':'acount invalid.'}
     s2t_ctx = loads2t()
     ...
-    result = ''
+    result = f'{len(audio)}'
     return {'txt': result, 'error':''}
 
 def text2text(user, password, txt, sourcelang, targetlang):
@@ -30,7 +30,7 @@ def text2text(user, password, txt, sourcelang, targetlang):
     if not is_valid_account(user, password):
         return {'txt': '', 'error':'acount invalid.'}
     ...
-    result = ''
+    result = f'{len(txt)}'
     return {'txt': result, 'error':''}
 
 #use GPT
