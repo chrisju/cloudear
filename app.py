@@ -26,6 +26,12 @@ def predict():
     mdl = get_model()
     return mdl.predict(request.json)
 
+@app.route("/xxx-add-user", methods=["POST"])
+def adduser():
+    mdl = get_model()
+    a = adduser(adminpass, user, password, date)
+    return mdl.predict(request.json)
+
 @app.route("/s2t", methods=["POST"])
 def transcribe():
     file = request.files.get("file")

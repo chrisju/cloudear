@@ -19,6 +19,8 @@ gcloud run deploy cloud-run-app \
     --platform managed \
     --region us-central1 \
     --allow-unauthenticated
+gcloud run deploy --image gcr.io/[PROJECT-ID]/[IMAGE] --add-cloudsql-instances [INSTANCE_CONNECTION_NAME] --region [REGION]
+
 
 ==============
 curl -X POST https://REGION-PROJECT.cloudfunctions.net/whisper-transcribe \
