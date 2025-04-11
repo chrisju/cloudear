@@ -4,74 +4,56 @@
 接收文本，源语言，目标语言，返回翻译结果
 接收时带上用户名密码
 '''
-from flask import Flask
-
-app = Flask(__name__)
-
-model = None
-
-def get_model():
-    global model
-    if model is None:
-        print("Loading model...")
-        model = load_model("/app/models/my_model.pth")
-    return model
-
-@app.route("/")
-def home():
-    return "Hello, Cloud Run!"
-
-@app.route("/predict", methods=["POST"])
-def predict():
-    mdl = get_model()
-    return mdl.predict(request.json)
-
-@app.route("/xxx-add-user", methods=["POST"])
-def adduser():
-    mdl = get_model()
-    a = adduser(adminpass, user, password, date)
-    return mdl.predict(request.json)
-
-@app.route("/s2t", methods=["POST"])
-def transcribe():
-    file = request.files.get("file")
-    if not file:
-        return {"error": "No file provided"}, 400
-
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp:
-        file.save(temp.name)
-
-        transcript = utils.call_whisper_api(temp.name)
-        return transcript
-
-@app.get("/get_subtitles/")
-async def get_subtitles(file_hash: str, username: str = "", password: str = ""):
-    bilingual_srt_filename = f"{file_hash}_bilingual.srt"
-    
-    try:
-        with open(bilingual_srt_filename, "r") as file:
-            subtitles = file.read()
-        return {"status": "success", "subtitles": subtitles}
-    except FileNotFoundError:
-        return {"status": "error", "message": "Subtitles not found."}
+import uvicorn
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import PlainTextResponse
+from pydantic import BaseModel
+from datetime import datetime
+from utils import *
 
 
-'''
-def transcribe_audio(file_hash: str, audio_file):
-    # 载入 Whisper 模型
-    model = whisper.load_model("base")  # 可以选择 'small', 'medium', 'large'
-    
-    # 读取音频并进行推理
-    audio = whisper.load_audio(audio_file)
-    result = model.transcribe(audio)
+app = FastAPI()
 
-    # 保存为 SRT 文件
-    srt_filename = f"{file_hash}.srt"
-    with open(srt_filename, "w") as f:
-        for segment in result["segments"]:
-            f.write(f"{segment['start']} --> {segment['end']}\n")
-            f.write(f"{segment['text']}\n\n")
-'''
+class CheckRequest(BaseModel):
+    adminpass: str
+    user: str
+    password: str
+    days: str
+
+@app.post("/hereadduser")
+def hereadduser(req: CheckRequest):
+    result = adduser(req.adminpass, req.user, req.password, req.days)
+    return {"success": result}
+
+@app.post("/s2t", response_class=PlainTextResponse)
+async def s2t(
+    file: UploadFile = File(...),
+    user: str = Form(...),
+    password: str = Form(...),
+    exparam: str = Form(...),
+    targetlang: str = Form(...),
+):
+    audio = await file.read()
+    result = speech2text(user, password, audio, exparam, targetlang)
+    return result
+
+@app.post("/t2t", response_class=PlainTextResponse)
+async def t2t(
+    file: UploadFile = File(...),
+    user: str = Form(...),
+    password: str = Form(...),
+    sourcelang: str = Form(...),
+    targetlang: str = Form(...),
+):
+    txt = await file.read()
+    result = text2text(user, password, txt, sourcelang, targetlang)
+    return result
+
+@app.get("/", response_class=PlainTextResponse)
+def root():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "\nHello, Cloud Run!"
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+

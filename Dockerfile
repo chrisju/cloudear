@@ -17,5 +17,4 @@ RUN mkdir SenseVoice.cpp/build/
 RUN cd SenseVoice.cpp/build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j 4 && cd -
 
 # 运行应用
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"]
-
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

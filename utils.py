@@ -1,4 +1,3 @@
-import openai
 import os
 
 
@@ -12,12 +11,31 @@ def loads2t():
     return s2t_ctx
     ...
 
-def speech2text(audio, lang, param):
+def speech2text(user, password, audio, exparam, targetlang):
+    '''
+    targetlang 不为空则翻译
+    '''
+    if not is_valid_account(user, password):
+        return {'txt': '', 'error':'acount invalid.'}
     s2t_ctx = loads2t()
+    ...
+    result = ''
+    return {'txt': result, 'error':''}
+
+def text2text(user, password, txt, sourcelang, targetlang):
+    '''
+    mode '0' 只识别
+    mode '1' 识别+翻译
+    '''
+    if not is_valid_account(user, password):
+        return {'txt': '', 'error':'acount invalid.'}
+    ...
+    result = ''
+    return {'txt': result, 'error':''}
 
 #use GPT
 #def translate(text, inputlang, outputlang):
-
+'''
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 def call_whisper_api(file_path):
@@ -31,47 +49,22 @@ def call_whisper_api(file_path):
         language="zh"
     )
     return result
-
-from googletrans import Translator
-
-def generate_bilingual_subtitles(file_hash: str, target_language: str):
-    # 读取原始 SRT 文件
-    srt_filename = f"{file_hash}.srt"
-    with open(srt_filename, "r") as file:
-        lines = file.readlines()
-
-    # 初始化翻译器
-    translator = Translator()
-
-    bilingual_subtitles = []
-    for i in range(0, len(lines), 3):  # 每条字幕由 3 行组成
-        timestamp = lines[i].strip()
-        text = lines[i + 1].strip()
-
-        # 翻译字幕文本
-        translation = translator.translate(text, dest=target_language).text
-
-        # 双语字幕（原文 + 翻译）
-        bilingual_subtitles.append(f"{timestamp}\n{text} ({translation})\n\n")
-
-    # 保存双语字幕文件
-    bilingual_srt_filename = f"{file_hash}_bilingual.srt"
-    with open(bilingual_srt_filename, "w") as file:
-        file.writelines(bilingual_subtitles)
+'''
 
 def is_valid_account(user, password):
     '''
     检查用户是否有效
     '''
+    #datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return True
     ...
 
-def adduser(adminpass, user, password, date):
+def adduser(adminpass, user, password, days):
     '''
     检查admin帐号的密码
     增加user或更新user的password和过期date
     '''
-    mdl = get_model()
-    return mdl.predict(request.json)
+    return True
 
 
 '''
