@@ -12,7 +12,8 @@ RUN pip install -r requirements.txt
 #RUN pip install --no-cache-dir -r requirements.txt
 #EXPOSE 8080
 
-RUN git clone -b z git@github.com:chrisju/SenseVoice.cpp.git 
+RUN git clone https://huggingface.co/lovemefan/sense-voice-gguf.git
+RUN git clone -b so https://github.com/chrisju/SenseVoice.cpp.git
 RUN mkdir SenseVoice.cpp/build/
 RUN cd SenseVoice.cpp/build/ && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j 4 && cd -
 

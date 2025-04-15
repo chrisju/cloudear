@@ -1,23 +1,60 @@
 import os
+import easycpp
 
 
 s2t_ctx = None
 
-def loads2t():
+'''
+    cpp = easycpp.easycpp('build/lib/libsense-voice.so')
+        cmdarg = '-m ../sense-voice-gguf/sense-voice-small-q8_0.gguf -t 18 -ng --max_speech_duration_ms 5000  --min_silence_duration_ms 550'.encode('utf-8')
+        print(f'cmdarg: {cmdarg}')
+        r = cpp.sense_voice_load(cmdarg)
+        print(f'sense_voice_load: {r}')
+        audio = open(sys.argv[1], 'rb').read()
+        r = cpp.sense_voice_speechbuff2text(cmdarg, audio, len(audio))
+        '''
+def loads2t(param):
+    '''
+    参数对应ctx？
+    累计识别数量大后重新初始化？ TODO
+    '''
     global s2t_ctx
     if s2t_ctx is None:
         print("prepare sensvoice...")
-        #s2t_ctx = load_model("/app/models/my_model.pth")
+        s2t_ctx = easycpp.easycpp('/app/SenseVoice.cpp/build/lib/libsense-voice.so')
+        r = s2t_ctx.sense_voice_load(param)
+        print(f'sense_voice_load: {r}')
+        if r != 0:
+            s2t_ctx = None
     return s2t_ctx
     ...
 
 def speech2text(user, password, audio, exparam, targetlang):
     '''
     targetlang 不为空则翻译
+    buffer = create_string_buffer(b"Hello, World!", 20)
+    from ctypes import *
+
+    # 创建一个字节数组
+    byte_array = (c_byte * 10)(*range(10))
+
+    # 将字节数组转换为指针
+    byte_ptr = cast(byte_array, POINTER(c_byte))
+
+    # 传递给C函数
+    libc = CDLL("libc.so.6")
+    libc.some_function(byte_ptr)
     '''
+    param = exparam + ' -m /app/sense-voice-gguf/sense-voice-small-q8_0.gguf'
+    param = param.strip().encode('utf-8')
+
     if not is_valid_account(user, password):
         return {'txt': '', 'error':'acount invalid.'}
-    s2t_ctx = loads2t()
+
+    s2t_ctx = loads2t(param_)
+
+    r = s2t_ctx.sense_voice_speechbuff2text(param, audio, len(audio))
+    print(f'sense_voice_speechbuff2text: {r}')
     ...
     result = f'{len(audio)}'
     return {'txt': result, 'error':''}
