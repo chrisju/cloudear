@@ -1,5 +1,6 @@
 import os
 import easycpp
+import ctypes
 
 
 s2t_ctx = None
@@ -46,13 +47,13 @@ def speech2text(user, password, audio, exparam, targetlang):
     if not is_valid_account(user, password):
         return {'txt': '', 'error':'acount invalid.'}
 
-    s2t_ctx = loads2t(param_)
+    s2t_ctx = loads2t(param)
 
     out_ptr = ctypes.c_char_p()
     r = s2t_ctx.sense_voice_speechbuff2text(param, audio, len(audio), ctypes.byref(out_ptr))
-    print(f'sense_voice_speechbuff2text: {r, out_ptr}')
+    #print(f'sense_voice_speechbuff2text: {r, out_ptr}')
     if r > 0:
-        return {'txt': out_ptr, 'error':''}
+        return {'txt': out_ptr.value.decode('utf-8'), 'error':''}
     else:
         return {'txt': '', 'error':f'sense_voice_speechbuff2text failed: {r}'}
 
