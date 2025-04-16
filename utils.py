@@ -22,6 +22,13 @@ def loads2t(param):
     if s2t_ctx is None:
         print("prepare sensvoice...")
         s2t_ctx = easycpp.easycpp('/app/SenseVoice.cpp/build/lib/libsense-voice.so')
+        s2t_ctx.sense_voice_speechbuff2text.argtypes = [
+            ctypes.c_char_p,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_char_p)
+        ]
+        s2t_ctx.sense_voice_speechbuff2text.restype = ctypes.c_int
         r = s2t_ctx.sense_voice_load(param)
         print(f'sense_voice_load: {r}')
         if r != 0:
@@ -32,18 +39,6 @@ def loads2t(param):
 def speech2text(user, password, audio, exparam, targetlang):
     '''
     targetlang 不为空则翻译
-    buffer = create_string_buffer(b"Hello, World!", 20)
-    from ctypes import *
-
-    # 创建一个字节数组
-    byte_array = (c_byte * 10)(*range(10))
-
-    # 将字节数组转换为指针
-    byte_ptr = cast(byte_array, POINTER(c_byte))
-
-    # 传递给C函数
-    libc = CDLL("libc.so.6")
-    libc.some_function(byte_ptr)
     '''
     param = exparam + ' -m /app/sense-voice-gguf/sense-voice-small-q8_0.gguf'
     param = param.strip().encode('utf-8')
@@ -53,11 +48,13 @@ def speech2text(user, password, audio, exparam, targetlang):
 
     s2t_ctx = loads2t(param_)
 
-    r = s2t_ctx.sense_voice_speechbuff2text(param, audio, len(audio))
-    print(f'sense_voice_speechbuff2text: {r}')
-    ...
-    result = f'{len(audio)}'
-    return {'txt': result, 'error':''}
+    out_ptr = ctypes.c_char_p()
+    r = s2t_ctx.sense_voice_speechbuff2text(param, audio, len(audio), ctypes.byref(out_ptr))
+    print(f'sense_voice_speechbuff2text: {r, out_ptr}')
+    if r > 0:
+        return {'txt': out_ptr, 'error':''}
+    else:
+        return {'txt': '', 'error':f'sense_voice_speechbuff2text failed: {r}'}
 
 def text2text(user, password, txt, sourcelang, targetlang):
     '''
