@@ -1,6 +1,7 @@
 import os
 import easycpp
 import ctypes
+from googletrans import Translator
 
 
 s2t_ctx = None
@@ -35,7 +36,6 @@ def loads2t(param):
         if r != 0:
             s2t_ctx = None
     return s2t_ctx
-    ...
 
 def speech2text(user, password, audio, exparam, targetlang):
     '''
@@ -53,7 +53,17 @@ def speech2text(user, password, audio, exparam, targetlang):
     r = s2t_ctx.sense_voice_speechbuff2text(param, audio, len(audio), ctypes.byref(out_ptr))
     #print(f'sense_voice_speechbuff2text: {r, out_ptr}')
     if r > 0:
-        return {'txt': out_ptr.value.decode('utf-8'), 'error':''}
+        text = out_ptr.value.decode('utf-8')
+        l = text.splitlines()
+        if targetlang:
+            print('translate...')
+            m = [a.split('|>')[-1] for a in l if a]
+            m = [translate(a, 'auto', targetlang) for a in m]
+            #m = translate(m, 'auto', 'zh-cn')
+            for i in range(len(l)):
+                l[i] += '<|split|>' + m[i]
+        text = '\n'.join(l)
+        return {'txt': text, 'error':''}
     else:
         return {'txt': '', 'error':f'sense_voice_speechbuff2text failed: {r}'}
 
@@ -69,22 +79,25 @@ def text2text(user, password, txt, sourcelang, targetlang):
     return {'txt': result, 'error':''}
 
 #use GPT
-#def translate(text, inputlang, outputlang):
-'''
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+def translate(text, inputlang, outputlang):
+    '''
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-def call_whisper_api(file_path):
-    audio_file = open(file_path, "rb")
-    result = openai.Audio.transcribe(
-        model="whisper-1",
-        file=audio_file,
-        response_format="verbose_json",
-        word_timestamps=True,
-        temperature=0.2,
-        language="zh"
-    )
-    return result
-'''
+    def call_whisper_api(file_path):
+        audio_file = open(file_path, "rb")
+        result = openai.Audio.transcribe(
+            model="whisper-1",
+            file=audio_file,
+            response_format="verbose_json",
+            word_timestamps=True,
+            temperature=0.2,
+            language="zh"
+        )
+        return result
+    '''
+    translator = Translator()
+    #ja
+    return translator.translate(text, src=inputlang, dest=outputlang).text
 
 def is_valid_account(user, password):
     '''
