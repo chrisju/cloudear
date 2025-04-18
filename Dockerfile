@@ -7,13 +7,12 @@ WORKDIR /app
 # 复制应用代码
 COPY . /app
 
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
-    git cmake make curl    \
+    git git-lfs cmake make curl    \
     && rm -rf /var/lib/apt/lists/*
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-RUN apt-get install -y git-lfs
 RUN git lfs install
 
 # 安装依赖
